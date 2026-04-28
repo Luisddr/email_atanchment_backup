@@ -40,16 +40,43 @@ DRIVE_ROOT_FOLDER_NAME = os.environ.get("DRIVE_ROOT_FOLDER_NAME", "1st_quarter_2
 DRIVE_PAYROLL_FOLDER_NAME = os.environ.get("DRIVE_PAYROLL_FOLDER_NAME", "payroll").strip() or "payroll"
 DRIVE_OTHERS_FOLDER_NAME  = os.environ.get("DRIVE_OTHERS_FOLDER_NAME", "others").strip() or "others"
 PAYROLL_SENDER = os.environ.get("PAYROLL_SENDER", "").strip()
+GMAIL_DATE_AFTER = os.environ.get("GMAIL_DATE_AFTER", "2026/01/01").strip()
+GMAIL_DATE_BEFORE = os.environ.get("GMAIL_DATE_BEFORE", "").strip()
+GMAIL_OTHERS_IMPORTANT_ONLY = os.environ.get("GMAIL_OTHERS_IMPORTANT_ONLY", "false").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "y",
+    "on",
+}
 
-# Búsqueda en Gmail: ajusta el rango de fechas según necesites
-QUERYPAYROLL = f"has:attachment after:2026/01/01 before:2026/04/01 from:({PAYROLL_SENDER})"
-QUERY        = f"has:attachment after:2026/01/01 before:2026/04/01 is:important -from:({PAYROLL_SENDER})"
+def _build_date_filters() -> list[str]:
+    filters = []
+    if GMAIL_DATE_AFTER:
+        filters.append(f"after:{GMAIL_DATE_AFTER}")
+    if GMAIL_DATE_BEFORE:
+        filters.append(f"before:{GMAIL_DATE_BEFORE}")
+    return filters
+
+
+def build_queries() -> tuple[str, str]:
+    date_filters = _build_date_filters()
+
+    payroll_query_parts = ["has:attachment", *date_filters, f"from:({PAYROLL_SENDER})"]
+    others_query_parts = ["has:attachment", *date_filters, f"-from:({PAYROLL_SENDER})"]
+
+    if GMAIL_OTHERS_IMPORTANT_ONLY:
+        others_query_parts.append("is:important")
+
+    return " ".join(payroll_query_parts), " ".join(others_query_parts)
 
 if not PAYROLL_SENDER:
     raise EnvironmentError(
         "Falta la variable PAYROLL_SENDER en .env.\n"
         "Ejemplo: PAYROLL_SENDER=nominas@miempresa.com"
     )
+
+QUERYPAYROLL, QUERY = build_queries()
 
 SCOPES     = [
     "https://www.googleapis.com/auth/gmail.readonly",

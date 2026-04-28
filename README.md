@@ -32,6 +32,10 @@ Variables Gmail:
 - `GMAIL_CLIENT_SECRET`
 - `GMAIL_REFRESH_TOKEN`
 - `GMAIL_TOKEN_URI` (normalmente `https://oauth2.googleapis.com/token`)
+- `PAYROLL_SENDER` (remitente de nómina)
+- `GMAIL_DATE_AFTER` (default: `2026/01/01`)
+- `GMAIL_DATE_BEFORE` (opcional; deja vacio para incluir hasta hoy)
+- `GMAIL_OTHERS_IMPORTANT_ONLY` (default: `false`)
 
 Variables Drive:
 
@@ -59,7 +63,8 @@ python descargar_adjuntos.py
 
 El script:
 
-- consulta Gmail con `QUERYPAYROLL` y `QUERY`
+- construye `QUERYPAYROLL` y `QUERY` desde variables en `.env`
+- por defecto **no** limita `others` a `is:important`
 - crea/resuelve carpetas en Drive de forma idempotente
 - sube adjuntos con nombre unico (agrega `_1`, `_2`, etc. si hay colision)
 - imprime `fileId` y subtotales por carpeta
