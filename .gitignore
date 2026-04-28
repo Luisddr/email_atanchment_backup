@@ -1,0 +1,21 @@
+# Credenciales — nunca subir al repo
+.env
+token.json
+credentials.json
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Índice con datos sensibles (CFDIs, RFC, importes personales)
+INDICE_ADJUNTOS.md
+
+# Adjuntos y archivos sensibles dentro de carpetas de trabajo
+payroll/*
+others/*
+!payroll/.gitkeep
+!others/.gitkeep
